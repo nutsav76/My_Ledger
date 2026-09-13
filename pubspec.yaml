@@ -1,0 +1,41 @@
+name: my_ledger
+description: "My Ledger - Financial tracking app"
+publish_to: 'none'
+
+version: 2.0.0+2
+
+environment:
+  sdk: ^3.13.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  shared_preferences: ^2.5.5
+  nepali_utils: ^3.0.8
+  nepali_date_picker: ^7.0.1
+  fl_chart: ^0.70.2
+  intl: ^0.20.2
+  share_plus: ^9.0.0
+  excel: ^4.0.0
+  pdf: ^3.11.1
+  printing: ^5.13.1
+  file_picker: ^8.0.0
+  path_provider: ^2.1.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/logo.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/logo.png
