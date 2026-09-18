@@ -11,6 +11,47 @@ class StorageService {
   static const String _themeKey = 'theme_mode';
   static const String _langKey = 'language';
   static const String _dateTypeKey = 'date_type';
+  static const String _userKey = 'user_data';
+  static const String _isLoggedInKey = 'is_logged_in';
+
+  static Future<void> saveUser({
+    required String email,
+    required String password,
+    String? name,
+    String? imagePath,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = json.encode({
+      'email': email,
+      'password': password,
+      'name': name ?? '',
+      'imagePath': imagePath ?? '',
+    });
+    await prefs.setString(_userKey, data);
+  }
+
+  static Future<Map<String, String>?> getUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final data = prefs.getString(_userKey);
+    if (data == null) return null;
+    final decoded = json.decode(data);
+    return {
+      'email': decoded['email'] ?? '',
+      'password': decoded['password'] ?? '',
+      'name': decoded['name'] ?? '',
+      'imagePath': decoded['imagePath'] ?? '',
+    };
+  }
+
+  static Future<void> setLoggedIn(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_isLoggedInKey, value);
+  }
+
+  static Future<bool> isLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_isLoggedInKey) ?? false;
+  }
 
   static Future<List<String>> getFinancialYears() async {
     final prefs = await SharedPreferences.getInstance();
@@ -57,18 +98,18 @@ class StorageService {
   }
 
   // Parties
-  static Future<List<Party>> getParties() async {
+  static Future<List<Party>> getParties(String fy) async {
     final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString(_partyKey);
+    final data = prefs.getString('parties_$fy');
     if (data == null) return [];
     final List<dynamic> jsonList = json.decode(data);
     return jsonList.map((e) => Party.fromMap(e)).toList();
   }
 
-  static Future<void> saveParties(List<Party> parties) async {
+  static Future<void> saveParties(String fy, List<Party> parties) async {
     final prefs = await SharedPreferences.getInstance();
     final data = json.encode(parties.map((e) => e.toMap()).toList());
-    await prefs.setString(_partyKey, data);
+    await prefs.setString('parties_$fy', data);
   }
 
   static Future<List<PartyTransaction>> getPartyLedger(String partyId) async {

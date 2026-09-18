@@ -71,13 +71,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   if (newType != null) {
                     await StorageService.saveDateType(newType);
                     setState(() => _dateType = newType);
+                    dateTypeNotifier.value = newType;
                   }
-                },
-              ),
-              ListTile(
-                title: Text(TranslationService.translate('date_converter', lang)),
-                onTap: () {
-                  _showConverter(lang);
                 },
               ),
               const Divider(),

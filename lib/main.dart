@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'screens/fy_selection_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/main_shell.dart';
 import 'services/storage_service.dart';
 
 final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.system);
 final ValueNotifier<String> languageNotifier = ValueNotifier('English');
+final ValueNotifier<String> dateTypeNotifier = ValueNotifier('AD');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,11 +20,20 @@ void main() async {
   final lang = await StorageService.getLanguage();
   languageNotifier.value = lang;
 
-  runApp(const MyLedgerApp());
+  final dateType = await StorageService.getDateType();
+  dateTypeNotifier.value = dateType;
+
+  final loggedIn = await StorageService.isLoggedIn();
+  final activeFY = await StorageService.getActiveFY() ?? '';
+
+  runApp(MyLedgerApp(initialScreen: loggedIn 
+      ? MainShell(activeFY: activeFY) 
+      : const LoginScreen()));
 }
 
 class MyLedgerApp extends StatelessWidget {
-  const MyLedgerApp({super.key});
+  final Widget initialScreen;
+  const MyLedgerApp({super.key, required this.initialScreen});
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +60,7 @@ class MyLedgerApp extends StatelessWidget {
             useMaterial3: true,
             brightness: Brightness.dark,
           ),
-          home: const FYSelectionScreen(),
+          home: initialScreen,
         );
       },
     );

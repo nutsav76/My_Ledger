@@ -50,18 +50,22 @@ class DataService {
       TextCellValue('Email'),
       TextCellValue('Opening Balance'),
       TextCellValue('Type'),
+      TextCellValue('Financial Year'),
     ]);
     
-    final parties = await StorageService.getParties();
-    for (var p in parties) {
-      partySheet.appendRow([
-        TextCellValue(p.id),
-        TextCellValue(p.name),
-        TextCellValue(p.contact),
-        TextCellValue(p.email),
-        DoubleCellValue(p.openingBalance),
-        TextCellValue(p.type.name),
-      ]);
+    for (var fy in fyList) {
+      final parties = await StorageService.getParties(fy);
+      for (var p in parties) {
+        partySheet.appendRow([
+          TextCellValue(p.id),
+          TextCellValue(p.name),
+          TextCellValue(p.contact),
+          TextCellValue(p.email),
+          DoubleCellValue(p.openingBalance),
+          TextCellValue(p.type.name),
+          TextCellValue(fy),
+        ]);
+      }
     }
 
     // Ledger Sheet
@@ -73,16 +77,19 @@ class DataService {
       TextCellValue('Debit'),
       TextCellValue('Credit'),
     ]);
-    for (var p in parties) {
-      final ledger = await StorageService.getPartyLedger(p.id);
-      for (var entry in ledger) {
-        ledgerSheet.appendRow([
-          TextCellValue(p.name),
-          TextCellValue(entry.date),
-          TextCellValue(entry.particular),
-          DoubleCellValue(entry.debit),
-          DoubleCellValue(entry.credit),
-        ]);
+    for (var fy in fyList) {
+      final parties = await StorageService.getParties(fy);
+      for (var p in parties) {
+        final ledger = await StorageService.getPartyLedger(p.id);
+        for (var entry in ledger) {
+          ledgerSheet.appendRow([
+            TextCellValue(p.name),
+            TextCellValue(entry.date),
+            TextCellValue(entry.particular),
+            DoubleCellValue(entry.debit),
+            DoubleCellValue(entry.credit),
+          ]);
+        }
       }
     }
 
@@ -96,11 +103,17 @@ class DataService {
 
   static Future<void> exportToPdf() async {
     final pdf = pw.Document();
-    final parties = await StorageService.getParties();
     final fyList = await StorageService.getFinancialYears();
 
+    List<List<String>> allParties = [];
     List<List<String>> allTransactions = [];
+
     for (var fy in fyList) {
+      final parties = await StorageService.getParties(fy);
+      for (var p in parties) {
+        allParties.add([p.name, p.contact, p.email, p.openingBalance.toString(), fy]);
+      }
+
       final txs = await StorageService.getTransactions(fy);
       for (var t in txs) {
         allTransactions.add([
@@ -127,9 +140,8 @@ class DataService {
           pw.TableHelper.fromTextArray(
             context: context,
             data: <List<String>>[
-              <String>['Name', 'Contact', 'Email', 'Balance'],
-              ...parties.map(
-                  (p) => [p.name, p.contact, p.email, p.openingBalance.toString()]),
+              <String>['Name', 'Contact', 'Email', 'Balance', 'FY'],
+              ...allParties,
             ],
           ),
           pw.SizedBox(height: 20),

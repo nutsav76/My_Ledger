@@ -15,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _period = 'Yearly';
+  String _period = 'Weekly';
   double _totalIncome = 0;
   double _totalExpense = 0;
   List<Transaction> _transactions = [];
@@ -32,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadData() async {
     final transactions = await StorageService.getTransactions(widget.activeFY);
+    final dateType = await StorageService.getDateType();
     setState(() {
       _transactions = transactions;
       _calculateSummary();
@@ -124,9 +125,6 @@ class _HomeScreenState extends State<HomeScreen> {
       valueListenable: languageNotifier,
       builder: (context, lang, _) {
         return Scaffold(
-          appBar: AppBar(
-            title: Text(widget.activeFY),
-          ),
           body: _loading
               ? const Center(child: CircularProgressIndicator())
               : RefreshIndicator(

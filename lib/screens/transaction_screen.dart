@@ -36,11 +36,18 @@ class _TransactionScreenState extends State<TransactionScreen> {
   }
 
   Future<void> _addTransaction(TransactionType type) async {
+    final lang = languageNotifier.value;
+    if (widget.activeFY.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(TranslationService.translate('select_fy', lang))),
+      );
+      return;
+    }
+
     final particularController = TextEditingController();
     final amountController = TextEditingController();
     DateTime selectedDate = DateTime.now();
     ndp.NepaliDateTime selectedNepaliDate = ndp.NepaliDateTime.now();
-    final lang = languageNotifier.value;
 
     await showDialog(
       context: context,
@@ -65,12 +72,12 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 ),
                 const SizedBox(height: 16),
                 ListTile(
-                  title: Text(_dateType == 'AD'
+                  title: Text(dateTypeNotifier.value == 'AD'
                       ? '${TranslationService.translate('date', lang)}: ${DateFormat('yyyy-MM-dd').format(selectedDate)}'
-                      : '${TranslationService.translate('date', lang)}: ${selectedNepaliDate.format('yyyy-MM-dd')}'),
+                      : '${TranslationService.translate('date', lang)}: ${ndp.NepaliDateFormat('yyyy-MM-dd').format(selectedNepaliDate)}'),
                   trailing: const Icon(Icons.calendar_today),
                   onTap: () async {
-                    if (_dateType == 'AD') {
+                    if (dateTypeNotifier.value == 'AD') {
                       final picked = await showDatePicker(
                         context: context,
                         initialDate: selectedDate,
@@ -100,18 +107,19 @@ class _TransactionScreenState extends State<TransactionScreen> {
                 child: Text(TranslationService.translate('cancel', lang))),
             ElevatedButton(
               onPressed: () async {
+                final dateType = dateTypeNotifier.value;
                 if (particularController.text.isNotEmpty &&
                     amountController.text.isNotEmpty) {
-                  final newTx = Transaction(
-                    id: DateTime.now().millisecondsSinceEpoch.toString(),
-                    date: _dateType == 'AD'
-                        ? DateFormat('yyyy-MM-dd').format(selectedDate)
-                        : selectedNepaliDate.format('yyyy-MM-dd'),
-                    particular: particularController.text,
-                    amount: double.parse(amountController.text),
-                    type: type,
-                    financialYear: widget.activeFY,
-                  );
+                    final newTx = Transaction(
+                      id: DateTime.now().millisecondsSinceEpoch.toString(),
+                      date: dateType == 'AD'
+                          ? DateFormat('yyyy-MM-dd').format(selectedDate)
+                          : selectedNepaliDate.toDateTime().toIso8601String().split('T')[0],
+                      particular: particularController.text,
+                      amount: double.parse(amountController.text),
+                      type: type,
+                      financialYear: widget.activeFY,
+                    );
                   setState(() => _transactions.insert(0, newTx));
                   await StorageService.saveTransactions(
                       widget.activeFY, _transactions);
@@ -131,116 +139,123 @@ class _TransactionScreenState extends State<TransactionScreen> {
     return ValueListenableBuilder<String>(
       valueListenable: languageNotifier,
       builder: (context, lang, _) {
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(TranslationService.translate('transaction', lang)),
-            actions: [
-              IconButton(icon: const Icon(Icons.refresh), onPressed: _loadData),
-            ],
-          ),
-          body: _loading
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: _transactions.length,
-                        itemBuilder: (context, index) {
-                          final tx = _transactions[index];
-                          return ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: tx.type == TransactionType.income
-                                  ? Colors.green.withOpacity(0.1)
-                                  : Colors.red.withOpacity(0.1),
-                              child: Icon(
-                                tx.type == TransactionType.income
-                                    ? Icons.arrow_downward
-                                    : Icons.arrow_upward,
-                                color: tx.type == TransactionType.income
-                                    ? Colors.green
-                                    : Colors.red,
-                              ),
-                            ),
-                            title: Text(tx.particular),
-                            subtitle: Text(tx.date),
-                            trailing: Text(
-                              'Rs. ${tx.amount.toStringAsFixed(2)}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: tx.type == TransactionType.income
-                                    ? Colors.green
-                                    : Colors.red,
-                              ),
-                            ),
-                            onLongPress: () async {
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: Text(TranslationService.translate(
-                                      'delete_transaction', lang)),
-                                  content: Text(TranslationService.translate(
-                                      'delete_confirm', lang)),
-                                  actions: [
-                                    TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, false),
-                                        child: Text(TranslationService.translate(
-                                            'cancel', lang))),
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, true),
-                                      child: Text(
-                                          TranslationService.translate(
-                                              'delete', lang),
-                                          style: const TextStyle(color: Colors.red)),
-                                    ),
+        return ValueListenableBuilder<String>(
+          valueListenable: dateTypeNotifier,
+          builder: (context, dateType, _) {
+            return Scaffold(
+              body: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Column(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: _transactions.length,
+                            itemBuilder: (context, index) {
+                              final tx = _transactions[index];
+                              return ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: tx.type == TransactionType.income
+                                      ? Colors.green.withOpacity(0.1)
+                                      : Colors.red.withOpacity(0.1),
+                                  child: Icon(
+                                    tx.type == TransactionType.income
+                                        ? Icons.arrow_downward
+                                        : Icons.arrow_upward,
+                                    color: tx.type == TransactionType.income
+                                        ? Colors.green
+                                        : Colors.red,
+                                  ),
+                                ),
+                                title: Text(tx.particular),
+                                subtitle: Row(
+                                  children: [
+                                    Text(dateType == 'AD' 
+                                      ? tx.date 
+                                      : ndp.NepaliDateTime.fromDateTime(DateTime.parse(tx.date)).format('yyyy-MM-dd')),
+                                    const SizedBox(width: 8),
+                                    Text(tx.type.name, style: const TextStyle(fontSize: 10, color: Colors.grey)),
                                   ],
                                 ),
+                                trailing: Text(
+                                  'Rs. ${tx.amount.toStringAsFixed(2)}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: tx.type == TransactionType.income
+                                        ? Colors.green
+                                        : Colors.red,
+                                  ),
+                                ),
+                                onLongPress: () async {
+                                  final confirm = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text(TranslationService.translate(
+                                          'delete_transaction', lang)),
+                                      content: Text(TranslationService.translate(
+                                          'delete_confirm', lang)),
+                                      actions: [
+                                        TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context, false),
+                                            child: Text(TranslationService.translate(
+                                                'cancel', lang))),
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, true),
+                                          child: Text(
+                                              TranslationService.translate(
+                                                  'delete', lang),
+                                              style: const TextStyle(color: Colors.red)),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (confirm == true) {
+                                    setState(() => _transactions.removeAt(index));
+                                    await StorageService.saveTransactions(
+                                        widget.activeFY, _transactions);
+                                  }
+                                },
                               );
-                              if (confirm == true) {
-                                setState(() => _transactions.removeAt(index));
-                                await StorageService.saveTransactions(
-                                    widget.activeFY, _transactions);
-                              }
                             },
-                          );
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () =>
-                                  _addTransaction(TransactionType.income),
-                              icon: const Icon(Icons.add),
-                              label: Text(TranslationService.translate(
-                                  'income', lang)),
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                  foregroundColor: Colors.white),
-                            ),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: () =>
-                                  _addTransaction(TransactionType.expense),
-                              icon: const Icon(Icons.remove),
-                              label: Text(TranslationService.translate(
-                                  'expense', lang)),
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white),
-                            ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () =>
+                                      _addTransaction(TransactionType.income),
+                                  icon: const Icon(Icons.add),
+                                  label: Text(TranslationService.translate(
+                                      'income', lang)),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green,
+                                      foregroundColor: Colors.white),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () =>
+                                      _addTransaction(TransactionType.expense),
+                                  icon: const Icon(Icons.remove),
+                                  label: Text(TranslationService.translate(
+                                      'expense', lang)),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                      foregroundColor: Colors.white),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+            );
+          },
         );
       },
     );

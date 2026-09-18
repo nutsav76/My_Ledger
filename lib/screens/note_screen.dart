@@ -31,9 +31,16 @@ class _NoteScreenState extends State<NoteScreen> {
   }
 
   Future<void> _addNote() async {
+    final lang = languageNotifier.value;
+    if (widget.activeFY.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(TranslationService.translate('select_fy', lang))),
+      );
+      return;
+    }
+
     final titleController = TextEditingController();
     final contentController = TextEditingController();
-    final lang = languageNotifier.value;
 
     await showDialog(
       context: context,
@@ -159,9 +166,6 @@ class _NoteScreenState extends State<NoteScreen> {
       valueListenable: languageNotifier,
       builder: (context, lang, _) {
         return Scaffold(
-          appBar: AppBar(
-            title: Text(TranslationService.translate('personal_notes', lang)),
-          ),
           body: _loading
               ? const Center(child: CircularProgressIndicator())
               : ListView.builder(
