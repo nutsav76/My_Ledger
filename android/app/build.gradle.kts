@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.my.ledger.my_ledger"
-    compileSdk = 34
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
