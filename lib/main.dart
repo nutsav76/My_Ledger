@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
+import 'screens/business_profile_screen.dart';
 import 'screens/main_shell.dart';
 import 'services/storage_service.dart';
 
@@ -23,12 +23,12 @@ void main() async {
   final dateType = await StorageService.getDateType();
   dateTypeNotifier.value = dateType;
 
-  final loggedIn = await StorageService.isLoggedIn();
+  final profileSetup = await StorageService.isProfileSetup();
   final activeFY = await StorageService.getActiveFY() ?? '';
 
-  runApp(MyLedgerApp(initialScreen: loggedIn 
+  runApp(MyLedgerApp(initialScreen: profileSetup 
       ? MainShell(activeFY: activeFY) 
-      : const LoginScreen()));
+      : const BusinessProfileScreen()));
 }
 
 class MyLedgerApp extends StatelessWidget {

@@ -11,70 +11,45 @@ class StorageService {
   static const String _themeKey = 'theme_mode';
   static const String _langKey = 'language';
   static const String _dateTypeKey = 'date_type';
-  static const String _userKey = 'user_data';
-  static const String _isLoggedInKey = 'is_logged_in';
+  static const String _businessProfileKey = 'business_profile';
+  static const String _isProfileSetupKey = 'is_profile_setup';
 
-  static Future<void> saveUser({
+  static Future<void> saveBusinessProfile({
+    required String name,
     required String email,
-    required String password,
-    String? name,
-    String? mobile,
-    String? imagePath,
+    required String contact,
+    required String category,
+    String? logoPath,
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final data = json.encode({
+      'name': name,
       'email': email,
-      'password': password,
-      'name': name ?? '',
-      'mobile': mobile ?? '',
-      'imagePath': imagePath ?? '',
+      'contact': contact,
+      'category': category,
+      'logoPath': logoPath ?? '',
     });
-    await prefs.setString(_userKey, data);
+    await prefs.setString(_businessProfileKey, data);
+    await prefs.setBool(_isProfileSetupKey, true);
   }
 
-  static Future<Map<String, String>?> getUser() async {
+  static Future<Map<String, String>?> getBusinessProfile() async {
     final prefs = await SharedPreferences.getInstance();
-    final data = prefs.getString(_userKey);
+    final data = prefs.getString(_businessProfileKey);
     if (data == null) return null;
     final decoded = json.decode(data);
     return {
-      'email': decoded['email'] ?? '',
-      'password': decoded['password'] ?? '',
       'name': decoded['name'] ?? '',
-      'mobile': decoded['mobile'] ?? '',
-      'imagePath': decoded['imagePath'] ?? '',
+      'email': decoded['email'] ?? '',
+      'contact': decoded['contact'] ?? '',
+      'category': decoded['category'] ?? '',
+      'logoPath': decoded['logoPath'] ?? '',
     };
   }
 
-  static Future<void> saveRememberMe(bool value, {String? email, String? password}) async {
+  static Future<bool> isProfileSetup() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('remember_me', value);
-    if (value && email != null && password != null) {
-      await prefs.setString('saved_email', email);
-      await prefs.setString('saved_password', password);
-    } else {
-      await prefs.remove('saved_email');
-      await prefs.remove('saved_password');
-    }
-  }
-
-  static Future<Map<String, dynamic>> getRememberMe() async {
-    final prefs = await SharedPreferences.getInstance();
-    return {
-      'remember': prefs.getBool('remember_me') ?? false,
-      'email': prefs.getString('saved_email') ?? '',
-      'password': prefs.getString('saved_password') ?? '',
-    };
-  }
-
-  static Future<void> setLoggedIn(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_isLoggedInKey, value);
-  }
-
-  static Future<bool> isLoggedIn() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_isLoggedInKey) ?? false;
+    return prefs.getBool(_isProfileSetupKey) ?? false;
   }
 
   static Future<List<String>> getFinancialYears() async {

@@ -22,9 +22,11 @@ class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
   late String _currentFY;
   List<String> _fyList = [];
-  String _userName = '';
-  String _userEmail = '';
-  String _userImagePath = '';
+  String _companyName = '';
+  String _companyEmail = '';
+  String _companyContact = '';
+  String _companyCategory = '';
+  String _companyLogoPath = '';
   int _dataVersion = 0;
 
   @override
@@ -32,16 +34,18 @@ class _MainShellState extends State<MainShell> {
     super.initState();
     _currentFY = widget.activeFY;
     _loadFYList();
-    _loadUserProfile();
+    _loadBusinessProfile();
   }
 
-  Future<void> _loadUserProfile() async {
-    final userData = await StorageService.getUser();
-    if (userData != null) {
+  Future<void> _loadBusinessProfile() async {
+    final profile = await StorageService.getBusinessProfile();
+    if (profile != null) {
       setState(() {
-        _userName = userData['name'] ?? '';
-        _userEmail = userData['email'] ?? '';
-        _userImagePath = userData['imagePath'] ?? '';
+        _companyName = profile['name'] ?? '';
+        _companyEmail = profile['email'] ?? '';
+        _companyContact = profile['contact'] ?? '';
+        _companyCategory = profile['category'] ?? '';
+        _companyLogoPath = profile['logoPath'] ?? '';
       });
     }
   }
@@ -195,24 +199,30 @@ class _MainShellState extends State<MainShell> {
                       CircleAvatar(
                         radius: 30,
                         backgroundColor: Colors.white,
-                        backgroundImage: _userImagePath.isNotEmpty 
-                            ? FileImage(File(_userImagePath)) 
+                        backgroundImage: _companyLogoPath.isNotEmpty 
+                            ? FileImage(File(_companyLogoPath)) 
                             : null,
-                        child: _userImagePath.isEmpty 
-                            ? const Icon(Icons.person, size: 35, color: Colors.teal) 
+                        child: _companyLogoPath.isEmpty 
+                            ? const Icon(Icons.business, size: 35, color: Colors.teal) 
                             : null,
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        _userName.isNotEmpty ? _userName : 'User',
+                        _companyName.isNotEmpty ? _companyName : 'Company Name',
                         style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
                             fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis,
                       ),
                       Text(
-                        _userEmail,
-                        style: const TextStyle(color: Colors.white70, fontSize: 13),
+                        '$_companyEmail | $_companyContact',
+                        style: const TextStyle(color: Colors.white70, fontSize: 11),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        TranslationService.translate(_companyCategory, lang),
+                        style: const TextStyle(color: Colors.white54, fontSize: 10, fontStyle: FontStyle.italic),
                       ),
                     ],
                   ),
