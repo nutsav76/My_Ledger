@@ -95,6 +95,8 @@ class TranslationService {
       'confirm_password': 'Confirm Password',
       'password_mismatch': 'Passwords do not match',
       'select_photo': 'Select Profile Photo',
+      'remember_me': 'Remember Me',
+      'mobile_label': 'Mobile Number',
     },
     'Nepali': {
       'home': 'होम',
@@ -186,6 +188,8 @@ class TranslationService {
       'confirm_password': 'पासवर्ड पुष्टि गर्नुहोस्',
       'password_mismatch': 'पासवर्ड मिलेन',
       'select_photo': 'प्रोफाइल फोटो छान्नुहोस्',
+      'remember_me': 'मलाई सम्झनुहोस्',
+      'mobile_label': 'मोबाइल नम्बर',
       'password_min_length': 'पासवर्ड कम्तिमा ८ अक्षरको हुनुपर्छ',
       'invalid_email': 'इमेलको ढाँचा मिलेन',
       'login_error': 'इमेल वा पासवर्ड मिलेन',

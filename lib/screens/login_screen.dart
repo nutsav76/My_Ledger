@@ -18,11 +18,30 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _mobileController = TextEditingController();
   
   bool _isObscured = true;
   bool _isRegisterMode = false;
+  bool _rememberMe = false;
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRememberedUser();
+  }
+
+  Future<void> _loadRememberedUser() async {
+    final data = await StorageService.getRememberMe();
+    if (data['remember'] == true) {
+      setState(() {
+        _rememberMe = true;
+        _emailController.text = data['email'];
+        _passwordController.text = data['password'];
+      });
+    }
+  }
 
   bool _isValidEmail(String email) {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
@@ -65,11 +84,19 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (_isRegisterMode) {
       final name = _nameController.text.trim();
+      final mobile = _mobileController.text.trim();
       final confirmPassword = _confirmPasswordController.text.trim();
 
       if (name.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please enter your name')),
+        );
+        return;
+      }
+
+      if (mobile.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please enter your mobile number')),
         );
         return;
       }
@@ -86,6 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
         email: email,
         password: password,
         name: name,
+        mobile: mobile,
         imagePath: _imageFile?.path,
       );
       
@@ -104,10 +132,13 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } else if (email == 'admin@admin.com' && password == 'admin1234') {
          isSuccess = true;
-         await StorageService.saveUser(email: email, password: password);
+         // No need to saveUser here for bypass
       }
 
       if (isSuccess) {
+        // Handle Remember Me
+        await StorageService.saveRememberMe(_rememberMe, email: email, password: password);
+        
         await StorageService.setLoggedIn(true);
         final activeFY = await StorageService.getActiveFY() ?? '';
         
@@ -187,6 +218,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    TextField(
+                      controller: _mobileController,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        labelText: TranslationService.translate('mobile_label', lang),
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.phone),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                   ],
 
                   TextField(
@@ -224,16 +265,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         prefixIcon: const Icon(Icons.lock_clock),
                       ),
                     ),
-                  ],
-
-                  if (!_isRegisterMode)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: _showForgotPassword,
-                        child: Text(TranslationService.translate('forgot_password', lang)),
-                      ),
+                  ] else ...[
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: _rememberMe,
+                          onChanged: (val) => setState(() => _rememberMe = val ?? false),
+                          activeColor: Colors.teal,
+                        ),
+                        Text(TranslationService.translate('remember_me', lang)),
+                        const Spacer(),
+                        TextButton(
+                          onPressed: _showForgotPassword,
+                          child: Text(TranslationService.translate('forgot_password', lang)),
+                        ),
+                      ],
                     ),
+                  ],
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: _handleSubmit,

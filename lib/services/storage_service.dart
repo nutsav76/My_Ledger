@@ -18,6 +18,7 @@ class StorageService {
     required String email,
     required String password,
     String? name,
+    String? mobile,
     String? imagePath,
   }) async {
     final prefs = await SharedPreferences.getInstance();
@@ -25,6 +26,7 @@ class StorageService {
       'email': email,
       'password': password,
       'name': name ?? '',
+      'mobile': mobile ?? '',
       'imagePath': imagePath ?? '',
     });
     await prefs.setString(_userKey, data);
@@ -39,7 +41,29 @@ class StorageService {
       'email': decoded['email'] ?? '',
       'password': decoded['password'] ?? '',
       'name': decoded['name'] ?? '',
+      'mobile': decoded['mobile'] ?? '',
       'imagePath': decoded['imagePath'] ?? '',
+    };
+  }
+
+  static Future<void> saveRememberMe(bool value, {String? email, String? password}) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('remember_me', value);
+    if (value && email != null && password != null) {
+      await prefs.setString('saved_email', email);
+      await prefs.setString('saved_password', password);
+    } else {
+      await prefs.remove('saved_email');
+      await prefs.remove('saved_password');
+    }
+  }
+
+  static Future<Map<String, dynamic>> getRememberMe() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'remember': prefs.getBool('remember_me') ?? false,
+      'email': prefs.getString('saved_email') ?? '',
+      'password': prefs.getString('saved_password') ?? '',
     };
   }
 
