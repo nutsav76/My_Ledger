@@ -126,14 +126,20 @@ class _PartyScreenState extends State<PartyScreen> {
                     Radio<BalanceType>(
                         value: BalanceType.dr,
                         groupValue: selectedType,
-                        onChanged: (v) =>
-                            setDialogState(() => selectedType = v!)),
+                        onChanged: (v) {
+                      if (v != null) {
+                        setDialogState(() => selectedType = v);
+                      }
+                    }),
                     Text(TranslationService.translate('debit', lang)),
                     Radio<BalanceType>(
                         value: BalanceType.cr,
                         groupValue: selectedType,
-                        onChanged: (v) =>
-                            setDialogState(() => selectedType = v!)),
+                        onChanged: (v) {
+                          if (v != null) {
+                            setDialogState(() => selectedType = v);
+                          }
+                        }),
                     Text(TranslationService.translate('credit', lang)),
                   ],
                 ),
@@ -248,14 +254,20 @@ class _PartyScreenState extends State<PartyScreen> {
                     Radio<BalanceType>(
                         value: BalanceType.dr,
                         groupValue: selectedType,
-                        onChanged: (v) =>
-                            setDialogState(() => selectedType = v!)),
+                        onChanged: (v) {
+                      if (v != null) {
+                        setDialogState(() => selectedType = v);
+                      }
+                    }),
                     Text(TranslationService.translate('debit', lang)),
                     Radio<BalanceType>(
                         value: BalanceType.cr,
                         groupValue: selectedType,
-                        onChanged: (v) =>
-                            setDialogState(() => selectedType = v!)),
+                        onChanged: (v) {
+                          if (v != null) {
+                            setDialogState(() => selectedType = v);
+                          }
+                        }),
                     Text(TranslationService.translate('credit', lang)),
                   ],
                 ),
@@ -325,7 +337,7 @@ class _PartyScreenState extends State<PartyScreen> {
                           leading: Hero(
                             tag: 'party-icon-${party.id}',
                             child: CircleAvatar(
-                              backgroundColor: Colors.teal.withOpacity(0.1),
+                              backgroundColor: Colors.teal.withValues(alpha: 0.1),
                               child: const Icon(Icons.person, color: Colors.teal),
                             ),
                           ),
@@ -748,7 +760,7 @@ class _PartyLedgerScreenState extends State<PartyLedgerScreen> {
       } else {
         displayDate = dateType == 'AD' 
             ? e.date 
-            : ndp.NepaliDateTime.fromDateTime(DateTime.parse(e.date)).format('yyyy-MM-dd');
+            : DateTime.parse(e.date).toNepaliDateTime().format('yyyy-MM-dd');
       }
     } else {
       displayDate = TranslationService.translate('date', lang);

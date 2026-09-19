@@ -32,7 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadData() async {
     final transactions = await StorageService.getTransactions(widget.activeFY);
-    final dateType = await StorageService.getDateType();
     setState(() {
       _transactions = transactions;
       _calculateSummary();
@@ -196,8 +195,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildChartSection(String lang) {
     double maxVal = 0;
-    for (var s in _incomeSpots) if (s.y > maxVal) maxVal = s.y;
-    for (var s in _expenseSpots) if (s.y > maxVal) maxVal = s.y;
+    for (var s in _incomeSpots) {
+      if (s.y > maxVal) maxVal = s.y;
+    }
+    for (var s in _expenseSpots) {
+      if (s.y > maxVal) maxVal = s.y;
+    }
     
     // Y-Axis intervals of 500
     maxVal = (maxVal / 500).ceil() * 500.0;
@@ -250,8 +253,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     show: true,
                     gradient: LinearGradient(
                       colors: [
-                        Colors.green.withOpacity(0.3),
-                        Colors.green.withOpacity(0.0),
+                        Colors.green.withValues(alpha: 0.3),
+                        Colors.green.withValues(alpha: 0.0),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -269,8 +272,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     show: true,
                     gradient: LinearGradient(
                       colors: [
-                        Colors.red.withOpacity(0.3),
-                        Colors.red.withOpacity(0.0),
+                        Colors.red.withValues(alpha: 0.3),
+                        Colors.red.withValues(alpha: 0.0),
                       ],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
@@ -313,7 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 horizontalInterval: 500,
                 getDrawingHorizontalLine: (value) {
                   return FlLine(
-                    color: Colors.grey.withOpacity(0.2),
+                    color: Colors.grey.withValues(alpha: 0.2),
                     strokeWidth: 1,
                   );
                 },
@@ -321,13 +324,13 @@ class _HomeScreenState extends State<HomeScreen> {
               borderData: FlBorderData(
                 show: true,
                 border: Border(
-                  bottom: BorderSide(color: Colors.grey.withOpacity(0.3)),
-                  left: BorderSide(color: Colors.grey.withOpacity(0.3)),
+                  bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
+                  left: BorderSide(color: Colors.grey.withValues(alpha: 0.3)),
                 ),
               ),
               lineTouchData: LineTouchData(
                 touchTooltipData: LineTouchTooltipData(
-                  getTooltipColor: (touchedSpot) => Colors.blueGrey.withOpacity(0.8),
+                  getTooltipColor: (touchedSpot) => Colors.blueGrey.withValues(alpha: 0.8),
                 ),
               ),
             ),
@@ -384,7 +387,7 @@ class _HomeScreenState extends State<HomeScreen> {
           margin: const EdgeInsets.symmetric(vertical: 4),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: tx.type == TransactionType.income ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+              backgroundColor: tx.type == TransactionType.income ? Colors.green.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
               child: Icon(
                 tx.type == TransactionType.income ? Icons.arrow_downward : Icons.arrow_upward,
                 color: tx.type == TransactionType.income ? Colors.green : Colors.red,

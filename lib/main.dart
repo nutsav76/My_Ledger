@@ -39,7 +39,7 @@ class MyLedgerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: themeNotifier,
-      builder: (_, mode, __) {
+      builder: (context, mode, child) {
         return MaterialApp(
           title: 'My Ledger',
           debugShowCheckedModeBanner: false,

@@ -17,7 +17,6 @@ class TransactionScreen extends StatefulWidget {
 class _TransactionScreenState extends State<TransactionScreen> {
   List<Transaction> _transactions = [];
   bool _loading = true;
-  String _dateType = 'AD';
 
   @override
   void initState() {
@@ -27,10 +26,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
 
   Future<void> _loadData() async {
     final transactions = await StorageService.getTransactions(widget.activeFY);
-    final dateType = await StorageService.getDateType();
     setState(() {
       _transactions = transactions;
-      _dateType = dateType;
       _loading = false;
     });
   }
@@ -84,8 +81,9 @@ class _TransactionScreenState extends State<TransactionScreen> {
                         firstDate: DateTime(2000),
                         lastDate: DateTime.now(),
                       );
-                      if (picked != null)
+                      if (picked != null) {
                         setDialogState(() => selectedDate = picked);
+                      }
                     } else {
                       final picked = await ndp.showNepaliDatePicker(
                         context: context,
@@ -93,8 +91,9 @@ class _TransactionScreenState extends State<TransactionScreen> {
                         firstDate: ndp.NepaliDateTime(2000),
                         lastDate: ndp.NepaliDateTime.now(),
                       );
-                      if (picked != null)
+                      if (picked != null) {
                         setDialogState(() => selectedNepaliDate = picked);
+                      }
                     }
                   },
                 ),
@@ -155,8 +154,8 @@ class _TransactionScreenState extends State<TransactionScreen> {
                               return ListTile(
                                 leading: CircleAvatar(
                                   backgroundColor: tx.type == TransactionType.income
-                                      ? Colors.green.withOpacity(0.1)
-                                      : Colors.red.withOpacity(0.1),
+                                      ? Colors.green.withValues(alpha: 0.1)
+                                      : Colors.red.withValues(alpha: 0.1),
                                   child: Icon(
                                     tx.type == TransactionType.income
                                         ? Icons.arrow_downward
@@ -171,7 +170,7 @@ class _TransactionScreenState extends State<TransactionScreen> {
                                   children: [
                                     Text(dateType == 'AD' 
                                       ? tx.date 
-                                      : ndp.NepaliDateTime.fromDateTime(DateTime.parse(tx.date)).format('yyyy-MM-dd')),
+                                      : DateTime.parse(tx.date).toNepaliDateTime().format('yyyy-MM-dd')),
                                     const SizedBox(width: 8),
                                     Text(tx.type.name, style: const TextStyle(fontSize: 10, color: Colors.grey)),
                                   ],

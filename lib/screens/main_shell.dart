@@ -283,10 +283,10 @@ class _MainShellState extends State<MainShell> {
           body: IndexedStack(
             index: _currentIndex,
             children: [
-              HomeScreen(activeFY: _currentFY, key: ValueKey(_currentFY + 'home' + _dataVersion.toString())),
-              TransactionScreen(activeFY: _currentFY, key: ValueKey(_currentFY + 'tx' + _dataVersion.toString())),
-              PartyScreen(activeFY: _currentFY, key: ValueKey(_currentFY + 'party' + _dataVersion.toString())),
-              NoteScreen(activeFY: _currentFY, key: ValueKey(_currentFY + 'note' + _dataVersion.toString())),
+              HomeScreen(activeFY: _currentFY, key: ValueKey('${_currentFY}home$_dataVersion')),
+              TransactionScreen(activeFY: _currentFY, key: ValueKey('${_currentFY}tx$_dataVersion')),
+              PartyScreen(activeFY: _currentFY, key: ValueKey('${_currentFY}party$_dataVersion')),
+              NoteScreen(activeFY: _currentFY, key: ValueKey('${_currentFY}note$_dataVersion')),
             ],
           ),
           bottomNavigationBar: BottomNavigationBar(

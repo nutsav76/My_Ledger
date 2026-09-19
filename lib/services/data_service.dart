@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:excel/excel.dart';
-import 'package:file_picker/file_picker.dart' as fp;
+import 'package:file_picker/file_picker.dart';
+import 'package:file_picker_platform_interface/file_picker_platform_interface.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -168,13 +169,13 @@ class DataService {
 
   static Future<bool> importData() async {
     try {
-      final result = await fp.FilePicker.platform.pickFiles(
-        type: fp.FileType.custom,
+      final result = await FilePickerPlatform.instance.pickFiles(
+        type: FileType.custom,
         allowedExtensions: ['json'],
       );
 
-      if (result != null && result.files.single.path != null) {
-        File file = File(result.files.single.path!);
+      if (result != null && result.isNotEmpty && result.single.path != null) {
+        File file = File(result.single.path!);
         final content = await file.readAsString();
         final Map<String, dynamic> data = json.decode(content);
         final prefs = await SharedPreferences.getInstance();

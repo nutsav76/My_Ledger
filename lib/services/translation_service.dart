@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class TranslationService {
   static final Map<String, Map<String, String>> _translations = {
     'English': {

@@ -49,7 +49,6 @@ class _BusinessProfileScreenState extends State<BusinessProfileScreen> {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final contact = _contactController.text.trim();
-    final lang = languageNotifier.value;
 
     if (name.isEmpty || email.isEmpty || contact.isEmpty || _selectedCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(

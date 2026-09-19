@@ -179,7 +179,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: Text(TranslationService.translate('import_data', lang)),
                 onTap: () async {
                   final success = await DataService.importData();
-                  if (success && mounted) {
+                  if (!mounted) return;
+                  if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Data restored successfully! Please restart the app.')),
                     );
@@ -203,140 +204,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         style: TextStyle(
             color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold),
       ),
-    );
-  }
-
-  void _showConverter(String lang) {
-    showDialog(
-      context: context,
-      builder: (context) => _DateConverterDialog(lang: lang),
-    );
-  }
-}
-
-class _DateConverterDialog extends StatefulWidget {
-  final String lang;
-  const _DateConverterDialog({required this.lang});
-
-  @override
-  State<_DateConverterDialog> createState() => _DateConverterDialogState();
-}
-
-class _DateConverterDialogState extends State<_DateConverterDialog>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  DateTime _selectedAdDate = DateTime.now();
-  ndp.NepaliDateTime _selectedBsDate = ndp.NepaliDateTime.now();
-  String _result = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
-  void _convertAdToBs() {
-    setState(() {
-      final nepaliDate = _selectedAdDate.toNepaliDateTime();
-      _result = nepaliDate.format('yyyy-MM-dd');
-    });
-  }
-
-  void _convertBsToAd() {
-    setState(() {
-      final adDate = _selectedBsDate.toDateTime();
-      _result = '${adDate.year}-${adDate.month.toString().padLeft(2, '0')}-${adDate.day.toString().padLeft(2, '0')}';
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(TranslationService.translate('date_converter', widget.lang)),
-      content: SizedBox(
-        width: double.maxFinite,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TabBar(
-              controller: _tabController,
-              labelColor: Theme.of(context).primaryColor,
-              unselectedLabelColor: Colors.grey,
-              tabs: [
-                Tab(text: TranslationService.translate('ad_to_bs', widget.lang)),
-                Tab(text: TranslationService.translate('bs_to_ad', widget.lang)),
-              ],
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 200,
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  // AD to BS
-                  Column(
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          final date = await showDatePicker(
-                            context: context,
-                            initialDate: _selectedAdDate,
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime(2100),
-                          );
-                          if (date != null) {
-                            setState(() => _selectedAdDate = date);
-                            _convertAdToBs();
-                          }
-                        },
-                        icon: const Icon(Icons.calendar_today),
-                        label: Text('${_selectedAdDate.year}-${_selectedAdDate.month}-${_selectedAdDate.day}'),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        '${TranslationService.translate('result', widget.lang)}: $_result',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  // BS to AD
-                  Column(
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          final date = await ndp.showNepaliDatePicker(
-                            context: context,
-                            initialDate: _selectedBsDate,
-                            firstDate: ndp.NepaliDateTime(2000),
-                            lastDate: ndp.NepaliDateTime(2099),
-                          );
-                          if (date != null) {
-                            setState(() => _selectedBsDate = date);
-                            _convertBsToAd();
-                          }
-                        },
-                        icon: const Icon(Icons.calendar_today),
-                        label: Text(_selectedBsDate.format('yyyy-MM-dd')),
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        '${TranslationService.translate('result', widget.lang)}: $_result',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(TranslationService.translate('close', widget.lang)),
-        ),
-      ],
     );
   }
 }
