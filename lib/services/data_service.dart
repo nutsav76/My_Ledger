@@ -168,7 +168,8 @@ class DataService {
 
   static Future<bool> importData() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final picker = FilePicker.platform;
+      final result = await picker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
