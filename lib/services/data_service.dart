@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:excel/excel.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:file_picker/file_picker.dart' as fp;
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -168,9 +168,8 @@ class DataService {
 
   static Future<bool> importData() async {
     try {
-      final picker = FilePicker.platform;
-      final result = await picker.pickFiles(
-        type: FileType.custom,
+      final result = await fp.FilePicker.platform.pickFiles(
+        type: fp.FileType.custom,
         allowedExtensions: ['json'],
       );
 
