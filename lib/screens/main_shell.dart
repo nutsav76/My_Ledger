@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'business_profile_screen.dart';
 import '../main.dart';
 import '../services/storage_service.dart';
 import '../services/translation_service.dart';
@@ -8,7 +10,6 @@ import 'transaction_screen.dart';
 import 'party_screen.dart';
 import 'note_screen.dart';
 import 'settings_screen.dart';
-import 'login_screen.dart';
 
 class MainShell extends StatefulWidget {
   final String activeFY;
@@ -262,11 +263,13 @@ class _MainShellState extends State<MainShell> {
                         leading: const Icon(Icons.logout, color: Colors.red),
                         title: Text(TranslationService.translate('logout', lang), style: const TextStyle(color: Colors.red)),
                         onTap: () async {
-                          await StorageService.setLoggedIn(false);
+                          // Since login is removed, we reset profile setup
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.clear(); 
                           if (!mounted) return;
                           Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(builder: (context) => const LoginScreen()),
+                            MaterialPageRoute(builder: (context) => const BusinessProfileScreen()),
                             (route) => false,
                           );
                         },
