@@ -52,6 +52,14 @@ class StorageService {
     return prefs.getBool(_isProfileSetupKey) ?? false;
   }
 
+  // Stubs for removed login system to prevent build errors
+  static Future<void> setLoggedIn(bool value) async {}
+  static Future<bool> isLoggedIn() async => false;
+  static Future<void> saveRememberMe(bool v, {String? email, String? password}) async {}
+  static Future<Map<String, dynamic>> getRememberMe() async => {'remember': false};
+  static Future<void> saveUser({required String email, required String password}) async {}
+  static Future<Map<String, String>?> getUser() async => null;
+
   static Future<List<String>> getFinancialYears() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getStringList(_fyKey) ?? [];
