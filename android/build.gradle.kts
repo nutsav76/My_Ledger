@@ -17,15 +17,18 @@ subprojects {
 }
 
 subprojects {
-    afterEvaluate {
-        val project = this
-        if (project.hasProperty("android")) {
-            project.extensions.configure<com.android.build.gradle.BaseExtension> {
+    project.evaluationDependsOn(":app")
+}
+
+subprojects {
+    val subproject = this
+    subproject.plugins.configureEach {
+        if (this is com.android.build.gradle.BasePlugin) {
+            subproject.extensions.configure<com.android.build.gradle.BaseExtension> {
                 compileSdkVersion(36)
             }
         }
     }
-    project.evaluationDependsOn(":app")
 }
 
 tasks.register<Delete>("clean") {
